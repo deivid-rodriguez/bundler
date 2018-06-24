@@ -12,6 +12,7 @@ branches:
     - auto
     - /.+-dev$/
     - /.+-stable$/
+    - fix/encoding_issue
 
 notifications:
   slack:
