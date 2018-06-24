@@ -586,6 +586,8 @@ The :#{name} git source is deprecated, and will be removed in Bundler 2.0.#{addi
           description = description.sub(/#{Regexp.quote trace_line}:\s*/, "").sub("\n", " - ")
         end
         [trace_line, description]
+      rescue
+        [nil, description]
       end
     end
 

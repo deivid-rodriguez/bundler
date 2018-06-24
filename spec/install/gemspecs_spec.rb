@@ -46,7 +46,7 @@ RSpec.describe "bundle install" do
     expect(the_bundle).to include_gems "activesupport 2.3.2"
   end
 
-  it "does not hang when gemspec has incompatible encoding" do
+  it "shows a friendly error when gemspec has incompatible encoding" do
     create_file("foo.gemspec", <<-G)
       Gem::Specification.new do |gem|
         gem.name = "pry-byebug"
@@ -60,7 +60,36 @@ RSpec.describe "bundle install" do
       gemspec
     G
 
-    expect(out).to include("Bundle complete!")
+    expect(out).to include("[!] There was an error while loading `foo.gemspec`: invalid multibyte char (US-ASCII)")
+    expect(out).to match(%r{ #  from .*/foo.gemspec:4})
+    expect(out).to include(" #  -------------------------------------------")
+    expect(out).to include(' #    gem.version = "3.4.2"')
+    expect(out).to include(' >    gem.author = "David Rodríguez"')
+    expect(out).to include(' #    gem.summary = "Good stuff"')
+    expect(out).to include(" #  -------------------------------------------")
+  end
+
+  it "shows a friendly error when syntax errors happen on files with UTF-8 names" do
+    create_file("💎.rb", <<-RUBY)
+      VERSION = "0.0.1
+    RUBY
+
+    create_file("persistent-dmnd.gemspec", <<-G)
+      require_relative "💎"
+
+      Gem::Specification.new do |gem|
+        gem.name = "persistent-dmnd"
+        gem.version = VERSION
+        gem.author = "Ivo Anjo"
+        gem.summary = "Unscratchable stuff"
+      end
+    G
+
+    install_gemfile <<-G
+      gemspec
+    G
+
+    expect(out).to include("unterminated string meets end of file")
   end
 
   context "when ruby version is specified in gemspec and gemfile" do
