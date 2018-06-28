@@ -2,7 +2,7 @@ language: ruby
 script: rake spec:travis
 before_script:
   - travis_retry rake -E 'module ::Bundler; VERSION = "0.0.0"; end' override_version
-  - gem uninstall bundler
+  - gem uninstall -a -x -I
   - travis_retry rake spec:travis:deps
   - travis_retry rake man:build
   - travis_retry rake spec:rubygems:clone_rubygems_$RGV
@@ -62,3 +62,5 @@ matrix:
   allow_failures:
     - rvm: ruby-head
       env: RGV=master
+
+sudo: required
